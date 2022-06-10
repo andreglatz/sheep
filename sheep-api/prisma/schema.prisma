@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DocumentType {
+  CPF
+  RG
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  WIDOWED
+}
+
+enum AnalysisStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Analysis {
+
+  id          String         @id @default(uuid()) @map("uuid")
+  status      AnalysisStatus @default(PENDING)
+  observation String?
+
+  member Member? @relation(fields: [memberId], references: [id])
+
+  memberId String? @unique
+  @@map("analyses")
+}
+
+model Member {
+  id            String        @id @default(uuid()) @map("uuid")
+  name          String
+  birhtDate     DateTime      @map("birth_date")
+  maritalStatus MaritalStatus @map("marital_status")
+  documents     Document[]
+  sex           Sex
+  email         String
+  phones        String[]
+  photo         String
+  memo          String
+  isDead        Boolean       @map("is_dead")
+  cieadespel    String
+  cgadb         String
+  placeOfBirth  String        @map("place_of_birth")
+
+  street       String
+  neighborhood String
+  city         String
+  state        String
+  zip          String
+  country      String
+
+  admissionType   String
+  admissionOrigen String?
+  admissionDate   DateTime
+
+  isLeader Boolean @map("is_leader")
+  branch   Branch? @relation(fields: [branchId], references: [id])
+  branchId String?
+
+  role   Role   @relation(fields: [roleId], references: [id])
+  roleId String
+
+  baptism   Baptism? @relation(fields: [baptismId], references: [id])
+  baptismId String?  @unique
+
+  analysis Analysis?
+
+  @@map("members")
+}
+
+model Document {
+  id    String       @id @default(uuid()) @map("uuid")
+  value String
+  type  DocumentType
+
+  Member   Member? @relation(fields: [memberId], references: [id])
+  memberId String? @map("member_uuid")
+
+  @@map("documents")
+}
+
+model Baptism {
+  id     String   @id @default(uuid()) @map("uuid")
+  date   DateTime
+  place  String
+  Member Member?
+
+  @@map("baptisms")
+}
+
+model Role {
+  id          String   @id @default(uuid()) @map("uuid")
+  description String
+  Member      Member[]
+}
+
+model Branch {
+  id           String   @id @default(uuid()) @map("uuid")
+  description  String
+  street       String
+  neighborhood String
+  city         String
+  state        String
+  zip          String
+  country      String
+  members      Member[]
+  phones       String[]
+
+  @@map("branches")
+}

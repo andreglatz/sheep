@@ -1,0 +1,25 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    env_file: .env
+    volumes:
+      - ./db/docker-entrypoint:/docker-entrypoint-initdb.d/
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - '1236:1236'
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    restart: on-failure
